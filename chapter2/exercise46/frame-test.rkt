@@ -88,6 +88,44 @@
           [edge2 (make-vect -0.5 0.866)])
       (check-equal? (frame-2-edge2 (make-frame-2 origin edge1 edge2)) edge2 "Origin selector")))))
 
+
+(define transform-tests
+  (test-suite
+   "Test frame transformation"
+   (test-case
+    "Move the vector from frame coordinate to global"
+    (let* ([origin (make-vect 1 2)]
+           [edge1 (make-vect 0.866 0.5)]
+           [edge2 (make-vect -0.5 0.866)]
+           [frame (make-frame origin edge1 edge2)])
+      (check-within ((frame-coord-map frame) (make-vect 1.0 1.0))
+                    (make-vect 1.366 3.366)
+                    1e-6)))))
+
+
+(define segment-tests
+  (test-suite
+   "Test Segment class"
+   (test-case
+    "Check Segment constructor"
+    (let ([start (make-vect 0.5 0.5)]
+          [end (make-vect 1 1)])
+      (check-equal? (make-segment start end) (cons start end) "Segment constructor")))
+   (test-case
+    "Check start selector"
+    (let* ([start (make-vect 0.5 0.5)]
+           [end (make-vect 1 1)]
+           [seg (make-segment start end)])
+      (check-equal? (start-segment seg) start "Start selector")))
+   (test-case
+    "Check end selector"
+    (let* ([start (make-vect 0.5 0.5)]
+           [end (make-vect 1 1)]
+           [seg (make-segment start end)])
+      (check-equal? (end-segment seg) end "End selector")))))
+
 (run-tests frame-utils-tests)
 (run-tests frame-tests)
 (run-tests frame-2-tests)
+(run-tests segment-tests)
+(run-tests transform-tests)

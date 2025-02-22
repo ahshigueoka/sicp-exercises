@@ -1,4 +1,5 @@
 #lang racket/base
+
 ; Exercise 2.46
 (define (make-vect x y)
   (cons x y))
@@ -45,6 +46,28 @@
 (define (frame-2-edge2 frame)
   (cddr frame))
 
+; Exercise 2.48
+(define (make-segment start end)
+  (cons start end))
+
+(define (start-segment seg)
+  (car seg))
+
+(define (end-segment seg)
+  (cdr seg))
+
+(define (frame-coord-map frame)
+  (lambda (vec)
+    (add-vect
+     (frame-origin frame)
+     (add-vect (scale-vect (xcor-vect vec)
+                           (frame-edge1 frame))
+               (scale-vect (ycor-vect vec)
+                           (frame-edge2 frame))))))
+
+; Exercise 2.49
+
+
 (provide make-vect
          xcor-vect
          ycor-vect
@@ -57,4 +80,8 @@
          frame-edge1
          frame-edge2
          make-frame-2
-         frame-2-edge2)
+         frame-2-edge2
+         make-segment
+         start-segment
+         end-segment
+         frame-coord-map)
