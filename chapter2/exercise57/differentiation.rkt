@@ -1,5 +1,6 @@
 #lang racket/base
 
+(require racket/list)
 
 (define (variable? x) (symbol? x))
 
@@ -9,18 +10,45 @@
 (define (=number? expr num)
   (and (number? expr) (= expr num)))
 
-(define (make-sum a1 a2)
-  (cond [(=number? a1 0) a2]
-        [(=number? a2 0) a1]
-        [(and (number? a1) (number? a2)) (+ a1 a2)]
-        [else (list '+ a1 a2)]))
+(define (collect-sum parcels)
+  (let ([number-sum (apply + (filter number? parcels))]
+        [non-numeric (filter (lambda (val) (not (number? val)))
+                             parcels)])
+    (if (= number-sum 0)
+        non-numeric
+        (cons number-sum non-numeric))))
 
-(define (make-product m1 m2)
-  (cond [(or (=number? m1 0) (=number? m2 0)) 0]
-        [(=number? m1 1) m2]
-        [(=number? m2 1) m1]
-        [(and (number? m1) (number? m2)) (* m1 m2)]
-        [else (list '* m1 m2)]))
+(define (collect-prod parcels)
+  (let ([number-prod (apply * (filter number? parcels))]
+        [non-numeric (filter (lambda (val) (not (number? val)))
+                             parcels)])
+    (cond [(= number-prod 0) '(0)]
+         [(= number-prod 1) non-numeric]
+         [else (cons number-prod non-numeric)])))
+
+(define (make-sum left right)
+  (let* ([left-parcels (if (sum? left)
+                           (cdr left)
+                           (list left))]
+         [right-parcels (if (sum? right)
+                            (cdr right)
+                            (list right))]
+         [simplified (collect-sum (append left-parcels right-parcels))])
+    (if (= (length simplified) 1)
+        (car simplified)
+        (cons '+ simplified))))
+
+(define (make-product left right)
+  (let* ([left-factors (if (product? left)
+                           (cdr left)
+                           (list left))]
+         [right-factors (if (product? right)
+                            (cdr right)
+                            (list right))]
+         [simplified (collect-prod (append left-factors right-factors))])
+    (if (= (length simplified) 1)
+        (car simplified)
+        (cons '* simplified))))
 
 (define (make-exponentiation B N)
   (cond [(and (=number? B 0) (=number? N 0))
@@ -38,7 +66,9 @@
   (cadr expr))
 
 (define (augend expr)
-  (caddr expr))
+  (if (= (length expr) 3)
+      (caddr expr)
+      (cons '+ (cddr expr))))
 
 (define (product? expr)
   (and (list? expr) (eq? '* (car expr))))
@@ -47,7 +77,9 @@
   (cadr expr))
 
 (define (multiplicand expr)
-  (caddr expr))
+  (if (= (length expr) 3)
+      (caddr expr)
+      (cons '* (cddr expr))))
 
 (define (exponentiation? expr)
   (and (list? expr) (eq? '** (car expr))))

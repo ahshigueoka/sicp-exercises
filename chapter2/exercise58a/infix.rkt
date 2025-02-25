@@ -13,14 +13,14 @@
   (cond [(=number? a1 0) a2]
         [(=number? a2 0) a1]
         [(and (number? a1) (number? a2)) (+ a1 a2)]
-        [else (list '+ a1 a2)]))
+        [else (list a1 '+ a2)]))
 
 (define (make-product m1 m2)
   (cond [(or (=number? m1 0) (=number? m2 0)) 0]
         [(=number? m1 1) m2]
         [(=number? m2 1) m1]
         [(and (number? m1) (number? m2)) (* m1 m2)]
-        [else (list '* m1 m2)]))
+        [else (list m1 '* m2)]))
 
 (define (make-exponentiation B N)
   (cond [(and (=number? B 0) (=number? N 0))
@@ -29,31 +29,32 @@
         [(=number? B 0) 0]
         [(=number? N 0) 1]
         [(=number? N 1) B]
-        [else (list '** B N)]))
+        [(and (number? B) (number? N)) (expt B N)]
+        [else (list B '** N)]))
 
 (define (sum? expr)
-  (and (list? expr) (eq? '+ (car expr))))
+  (and (list? expr) (eq? '+ (cadr expr))))
 
 (define (addend expr)
-  (cadr expr))
+  (car expr))
 
 (define (augend expr)
   (caddr expr))
 
 (define (product? expr)
-  (and (list? expr) (eq? '* (car expr))))
+  (and (list? expr) (eq? '* (cadr expr))))
 
 (define (multiplier expr)
-  (cadr expr))
+  (car expr))
 
 (define (multiplicand expr)
   (caddr expr))
 
 (define (exponentiation? expr)
-  (and (list? expr) (eq? '** (car expr))))
+  (and (list? expr) (eq? '** (cadr expr))))
 
 (define (base expr)
-  (cadr expr))
+  (car expr))
 
 (define (exponent expr)
   (caddr expr))
