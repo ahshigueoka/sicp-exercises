@@ -11,8 +11,41 @@
 (define (make-tree entry left right)
   (list entry left right))
 
+(define (partial-tree elts n)
+  (if (= n 0)
+      (cons '() elts)
+      (let* ([left-size (quotient (- n 1) 2)]
+             [left-result (partial-tree elts left-size)]
+             [left-tree (car left-result)]
+             [non-left-elts (cdr left-result)]
+             [right-size (- n (+ left-size 1))]
+             [this-entry (car non-left-elts)]
+             [right-result (partial-tree (cdr non-left-elts) right-size)]
+             [right-tree (car right-result)]
+             [remaining-elts (cdr right-result)])
+        (cons (make-tree this-entry left-tree right-tree)
+              remaining-elts))))
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+
+(define (make-record key value)
+  (cons key value))
+
+(define (key record)
+  (car record))
+
+(define (value record)
+  (cdr record))
+
 (define (lookup given-key set-of-records)
-  (cond [(null? sef-of-records) #f]
-        [(< given-key (key (entry tree))) (lookup given-key (left-branch tree))]
-        [(> given-key (key (entry tree))) (lookup given-key (right-branch tree))]
-        [else (entry tree)]))
+  (cond [(null? set-of-records) (cons given-key null)]
+        [(< given-key (key (entry set-of-records)))
+         (lookup given-key (left-branch set-of-records))]
+        [(> given-key (key (entry set-of-records)))
+         (lookup given-key (right-branch set-of-records))]
+        [else (entry set-of-records)]))
+
+(provide lookup
+         make-record
+         list->tree)
